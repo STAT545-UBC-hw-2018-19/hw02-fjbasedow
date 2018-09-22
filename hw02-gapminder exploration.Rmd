@@ -1,0 +1,116 @@
+---
+title: "hw02-gapminder exploration"
+author: "Frederike Basedow"
+date: "22 September 2018"
+output: github_document
+---
+
+### Load the data and packages
+```{r, message=FALSE}
+library(gapminder)
+library(tidyverse)
+library(knitr)
+```
+
+### Smell test the data
+
+Explore the gapminder object:
+
+1. Is it a data.frame, a matrix, a vector, a list?
+
+```{r}
+str(gapminder)
+typeof(gapminder)
+```
+
+
+2. What is its class?
+
+```{r}
+class(gapminder)
+```
+
+3. How many variables/columns?
+
+```{r}
+n_var <- ncol(gapminder)
+n_var
+```
+
+Gapminder has `r n_var` variables.
+
+4. How many rows/observations?
+
+```{r}
+n_obs <- nrow(gapminder)
+n_obs
+```
+
+Gapminder has `r n_obs` observations.
+
+5. Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?
+
+You can get the number of variables and observations with the functions `ncol()` and `nrow()`, respectively as I did above, but you could also use the function `str()`, that includes the number of variable and observations in its output. `str` is useful if you just want to get an overview of what your data set looks like, `nrow` and `ncol` are useful if you want to use these number for further calculations.
+
+6. What data type is each variable?
+
+```{r}
+sapply(gapminder, class)
+```
+
+### Explore individual variables
+
+Pick at least one categorical variable and at least one quantitative variable to explore.
+
+I will explore `year` as a categorical variable and `lifeExp` as a quanititative variable.
+
+1. What are possible values (or range, whichever is appropriate) of each variable?
+
+```{r}
+range(gapminder$lifeExp)
+nlevels(gapminder$country)
+levels(gapminder$country)
+levels(as.factor(gapminder$year))
+```
+
+2. What values are typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.
+
+lifeExp:
+
+```{r}
+summary(gapminder$lifeExp)
+gapminder %>% 
+  ggplot(aes(lifeExp)) + 
+  geom_density()
+
+gapminder %>% 
+  ggplot(aes(year,lifeExp)) +
+  geom_line(aes(group=country, colour=continent))
+```
+
+Feel free to use summary stats, tables, figures. We’re NOT expecting high production value (yet).
+
+
+### Explore various plot types
+
+Make a few plots, probably of the same variable you chose to characterize numerically. You can use the plot types we went over in class (cm006) to get an idea of what you’d like to make. Try to explore more than one plot type. Just as an example of what I mean:
+
+1. A scatterplot of two quantitative variables.
+
+```{r}
+gapminder %>% 
+  ggplot(aes(lifeExp, gdpPercap)) +
+  geom_point() 
+```
+
+2. A plot of one quantitative variable. Maybe a histogram or densityplot or frequency polygon.
+
+```{r}
+gapminder %>% 
+  ggplot(aes(gdpPercap)) +
+  geom_freqpoly()
+```
+
+    A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.
+
+You don’t have to use all the data in every plot! It’s fine to filter down to one country or small handful of countries.
