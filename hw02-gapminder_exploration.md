@@ -218,7 +218,7 @@ Make a few plots, probably of the same variable you chose to characterize numeri
 
 ``` r
 gapminder %>% 
-  ggplot(aes(lifeExp, gdpPercap)) +
+  ggplot(aes(pop, lifeExp)) +
   geom_point() 
 ```
 
@@ -229,13 +229,44 @@ gapminder %>%
 ``` r
 gapminder %>% 
   ggplot(aes(gdpPercap)) +
-  geom_freqpoly()
+  geom_density()
 ```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-    A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.
+1.  A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.
+
+``` r
+gapminder %>% 
+  ggplot(aes(continent, lifeExp)) +
+  geom_violin() +
+  geom_jitter(alpha=0.25)
+```
+
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
 You don’t have to use all the data in every plot! It’s fine to filter down to one country or small handful of countries.
+
+``` r
+gapminder %>% filter(continent == "Asia") %>% 
+  ggplot(aes(country, lifeExp)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-12-1.png)
+
+### Use filter(), select() and %&gt;%
+
+1.  Use filter() to create data subsets that you want to plot. Practice piping together filter() and select(). Possibly even piping into ggplot().
+
+``` r
+gapminder %>% 
+  select(continent, country, lifeExp, year) %>% 
+  filter(year=="1952") %>% 
+  ggplot(aes(continent, lifeExp)) +
+  geom_violin() +
+  geom_jitter()
+```
+
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-13-1.png)
