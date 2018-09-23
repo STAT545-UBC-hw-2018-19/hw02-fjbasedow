@@ -18,6 +18,7 @@ Explore the gapminder object:
 1.  Is it a data.frame, a matrix, a vector, a list?
 
 ``` r
+# Check for the structure and type of gapminder
 str(gapminder)
 ```
 
@@ -34,6 +35,8 @@ typeof(gapminder)
 ```
 
     ## [1] "list"
+
+Gapminder is a list that contains 3 different classes: table-data frame, table and data frame.
 
 1.  What is its class?
 
@@ -82,24 +85,24 @@ sapply(gapminder, class)
 
 Pick at least one categorical variable and at least one quantitative variable to explore.
 
-I will explore `year` as a categorical variable and `lifeExp` as a quanititative variable.
+I will explore `country` as a categorical variable and `lifeExp` as a quanititative variable.
 
 1.  What are possible values (or range, whichever is appropriate) of each variable?
 
 ``` r
-range(gapminder$lifeExp)
+range(gapminder$lifeExp) # get the range of lifeExp
 ```
 
     ## [1] 23.599 82.603
 
 ``` r
-nlevels(gapminder$country)
+nlevels(gapminder$country) # get the number of countries
 ```
 
     ## [1] 142
 
 ``` r
-levels(gapminder$country)
+levels(gapminder$country) # get a list of each country in the data set
 ```
 
     ##   [1] "Afghanistan"              "Albania"                 
@@ -175,7 +178,7 @@ levels(gapminder$country)
     ## [141] "Zambia"                   "Zimbabwe"
 
 ``` r
-levels(as.factor(gapminder$year))
+levels(as.factor(gapminder$year)) # get a list of all years included in data set
 ```
 
     ##  [1] "1952" "1957" "1962" "1967" "1972" "1977" "1982" "1987" "1992" "1997"
@@ -186,13 +189,21 @@ levels(as.factor(gapminder$year))
 lifeExp:
 
 ``` r
-summary(gapminder$lifeExp)
+# get statistics of lifeExp variable, make them into a data frame for presenting in nice table with kable()
+summary(gapminder$lifeExp) %>% as.matrix() %>% as.data.frame() %>% rownames_to_column() %>% rename(Stat=rowname, Value=V1) %>% kable()
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##   23.60   48.20   60.71   59.47   70.85   82.60
+| Stat    |     Value|
+|:--------|---------:|
+| Min.    |  23.59900|
+| 1st Qu. |  48.19800|
+| Median  |  60.71250|
+| Mean    |  59.47444|
+| 3rd Qu. |  70.84550|
+| Max.    |  82.60300|
 
 ``` r
+# make density plot for lifeExp variable
 gapminder %>% 
   ggplot(aes(lifeExp)) + 
   geom_density()
@@ -201,6 +212,7 @@ gapminder %>%
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` r
+# make plot that shows lifeExp over the years per country with clour coding per continent
 gapminder %>% 
   ggplot(aes(year,lifeExp)) +
   geom_line(aes(group=country, colour=continent))
@@ -217,9 +229,10 @@ Make a few plots, probably of the same variable you chose to characterize numeri
 1.  A scatterplot of two quantitative variables.
 
 ``` r
+# make a scatterplot of lifeExp vs. gdpPercap
 gapminder %>% 
-  ggplot(aes(pop, lifeExp)) +
-  geom_point() 
+  ggplot(aes(gdpPercap, lifeExp)) +
+  geom_jitter() 
 ```
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-9-1.png)
@@ -227,10 +240,13 @@ gapminder %>%
 1.  A plot of one quantitative variable. Maybe a histogram or densityplot or frequency polygon.
 
 ``` r
+# frequency pplygon for population
 gapminder %>% 
-  ggplot(aes(gdpPercap)) +
-  geom_density()
+  ggplot(aes(pop)) +
+  geom_freqpoly()
 ```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
@@ -240,7 +256,8 @@ gapminder %>%
 gapminder %>% 
   ggplot(aes(continent, lifeExp)) +
   geom_violin() +
-  geom_jitter(alpha=0.25)
+  geom_jitter(alpha=0.25) +
+  labs(x="Continent", y="Life Expectancy")
 ```
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-11-1.png)
@@ -296,7 +313,9 @@ filter(gapminder, country == c("Rwanda", "Afghanistan"))
     ## 11 Rwanda      Africa     1992    23.6  7290203      737.
     ## 12 Rwanda      Africa     2002    43.4  7852401      786.
 
-They did not succeed - the output doesn't include all of the data of Afghanistan and Rwanda, only one of the two for each year. The correct way is:
+They did not succeed - the output doesn't include all of the data of Afghanistan and Rwanda, only one of the two for each year.
+
+The correct way is:
 
 ``` r
 gapminder %>% filter(country %in% c("Afghanistan", "Rwanda"))
