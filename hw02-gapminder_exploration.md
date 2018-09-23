@@ -261,6 +261,7 @@ gapminder %>% filter(continent == "Asia") %>%
 1.  Use filter() to create data subsets that you want to plot. Practice piping together filter() and select(). Possibly even piping into ggplot().
 
 ``` r
+# i don't understand the use of `select()` when you're plotting data since you're selecting data in your plot settings anyways
 gapminder %>% 
   select(continent, country, lifeExp, year) %>% 
   filter(year=="1952") %>% 
@@ -270,3 +271,69 @@ gapminder %>%
 ```
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-13-1.png)
+
+### But I want to do more!
+
+Evaluate this code and describe the result. Presumably the analyst’s intent was to get the data for Rwanda and Afghanistan. Did they succeed? Why or why not? If not, what is the correct way to do this?
+
+``` r
+filter(gapminder, country == c("Rwanda", "Afghanistan"))
+```
+
+    ## # A tibble: 12 x 6
+    ##    country     continent  year lifeExp      pop gdpPercap
+    ##    <fct>       <fct>     <int>   <dbl>    <int>     <dbl>
+    ##  1 Afghanistan Asia       1957    30.3  9240934      821.
+    ##  2 Afghanistan Asia       1967    34.0 11537966      836.
+    ##  3 Afghanistan Asia       1977    38.4 14880372      786.
+    ##  4 Afghanistan Asia       1987    40.8 13867957      852.
+    ##  5 Afghanistan Asia       1997    41.8 22227415      635.
+    ##  6 Afghanistan Asia       2007    43.8 31889923      975.
+    ##  7 Rwanda      Africa     1952    40.0  2534927      493.
+    ##  8 Rwanda      Africa     1962    43.0  3051242      597.
+    ##  9 Rwanda      Africa     1972    44.6  3992121      591.
+    ## 10 Rwanda      Africa     1982    46.2  5507565      882.
+    ## 11 Rwanda      Africa     1992    23.6  7290203      737.
+    ## 12 Rwanda      Africa     2002    43.4  7852401      786.
+
+They did not succeed - the output doesn't include all of the data of Afghanistan and Rwanda, only one of the two for each year. The correct way is:
+
+``` r
+gapminder %>% filter(country %in% c("Afghanistan", "Rwanda"))
+```
+
+    ## # A tibble: 24 x 6
+    ##    country     continent  year lifeExp      pop gdpPercap
+    ##    <fct>       <fct>     <int>   <dbl>    <int>     <dbl>
+    ##  1 Afghanistan Asia       1952    28.8  8425333      779.
+    ##  2 Afghanistan Asia       1957    30.3  9240934      821.
+    ##  3 Afghanistan Asia       1962    32.0 10267083      853.
+    ##  4 Afghanistan Asia       1967    34.0 11537966      836.
+    ##  5 Afghanistan Asia       1972    36.1 13079460      740.
+    ##  6 Afghanistan Asia       1977    38.4 14880372      786.
+    ##  7 Afghanistan Asia       1982    39.9 12881816      978.
+    ##  8 Afghanistan Asia       1987    40.8 13867957      852.
+    ##  9 Afghanistan Asia       1992    41.7 16317921      649.
+    ## 10 Afghanistan Asia       1997    41.8 22227415      635.
+    ## # ... with 14 more rows
+
+``` r
+# or
+
+gapminder %>% filter(country == "Afghanistan" | country =="Rwanda")
+```
+
+    ## # A tibble: 24 x 6
+    ##    country     continent  year lifeExp      pop gdpPercap
+    ##    <fct>       <fct>     <int>   <dbl>    <int>     <dbl>
+    ##  1 Afghanistan Asia       1952    28.8  8425333      779.
+    ##  2 Afghanistan Asia       1957    30.3  9240934      821.
+    ##  3 Afghanistan Asia       1962    32.0 10267083      853.
+    ##  4 Afghanistan Asia       1967    34.0 11537966      836.
+    ##  5 Afghanistan Asia       1972    36.1 13079460      740.
+    ##  6 Afghanistan Asia       1977    38.4 14880372      786.
+    ##  7 Afghanistan Asia       1982    39.9 12881816      978.
+    ##  8 Afghanistan Asia       1987    40.8 13867957      852.
+    ##  9 Afghanistan Asia       1992    41.7 16317921      649.
+    ## 10 Afghanistan Asia       1997    41.8 22227415      635.
+    ## # ... with 14 more rows
