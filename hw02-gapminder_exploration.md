@@ -13,9 +13,9 @@ library(knitr)
 
 ### Smell test the data
 
-Explore the gapminder object:
+*Explore the gapminder object:*
 
-1.  Is it a data.frame, a matrix, a vector, a list?
+**1. Is it a data.frame, a matrix, a vector, a list?**
 
 ``` r
 # Check for the structure and type of gapminder
@@ -38,7 +38,7 @@ typeof(gapminder)
 
 Gapminder is a list that contains 3 different classes: table-data frame, table and data frame.
 
-1.  What is its class?
+**2. What is its class?**
 
 ``` r
 class(gapminder)
@@ -46,7 +46,7 @@ class(gapminder)
 
     ## [1] "tbl_df"     "tbl"        "data.frame"
 
-1.  How many variables/columns?
+**3. How many variables/columns?**
 
 ``` r
 n_var <- ncol(gapminder)
@@ -57,7 +57,7 @@ n_var
 
 Gapminder has 6 variables.
 
-1.  How many rows/observations?
+**4. How many rows/observations?**
 
 ``` r
 n_obs <- nrow(gapminder)
@@ -68,41 +68,62 @@ n_obs
 
 Gapminder has 1704 observations.
 
-1.  Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?
+**5. Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?**
 
-You can get the number of variables and observations with the functions `ncol()` and `nrow()`, respectively as I did above, but you could also use the function `str()`, that includes the number of variable and observations in its output. `str` is useful if you just want to get an overview of what your data set looks like, `nrow` and `ncol` are useful if you want to use these number for further calculations.
-
-1.  What data type is each variable?
+Another way to get the number of rows and columns is to use the `dim()` function:
 
 ``` r
-sapply(gapminder, class)
+dim(gapminder)
+```
+
+    ## [1] 1704    6
+
+Furthermore, the output of the `str()` function also includes the dimensions of the object in its first line. `str()` is useful if you just want to get an overview of what the dimension are but not do anything with them. `dim()`, `nrow()` and `ncol()` are useful if you want to use the output numbers for future calculations. For example, you might want to use the total number of observations to calculate the mean. Here is an example for calculating the mean gdpPercap, making use of `n_obs` as assigned above:
+
+``` r
+sum(gapminder$gdpPercap)/n_obs
+```
+
+    ## [1] 7215.327
+
+**6. What data type is each variable?**
+
+``` r
+sapply(gapminder, class) # using the sapply() function which returns a vector that is the same length as gapminder, i.e. applying it to each variable.
 ```
 
     ##   country continent      year   lifeExp       pop gdpPercap 
     ##  "factor"  "factor" "integer" "numeric" "integer" "numeric"
 
+The first row shows the variable and the second row the respective type of each variable.
+
 ### Explore individual variables
 
-Pick at least one categorical variable and at least one quantitative variable to explore.
+*Pick at least one categorical variable and at least one quantitative variable to explore.*
 
-I will explore `country` as a categorical variable and `lifeExp` as a quanititative variable.
+I will explore `country` and `year` as categorical variables and `lifeExp` and \`gdpPercap as quanititative variables.
 
-1.  What are possible values (or range, whichever is appropriate) of each variable?
+**1. What are possible values (or range, whichever is appropriate) of each variable?**
+
+I will safe the output of each of these calculations in case I will need them later.
 
 ``` r
-range(gapminder$lifeExp) # get the range of lifeExp
+r_lE <- range(gapminder$lifeExp) # get the lowest and highest value of lifeExp
+r_lE
 ```
 
     ## [1] 23.599 82.603
 
 ``` r
-nlevels(gapminder$country) # get the number of countries
+n_ct <- nlevels(gapminder$country) # get the number of countries
+n_ct
 ```
 
     ## [1] 142
 
 ``` r
-levels(gapminder$country) # get a list of each country in the data set
+all_ct <- levels(gapminder$country) # get a list of each country in the data set
+all_ct
 ```
 
     ##   [1] "Afghanistan"              "Albania"                 
@@ -178,15 +199,23 @@ levels(gapminder$country) # get a list of each country in the data set
     ## [141] "Zambia"                   "Zimbabwe"
 
 ``` r
-levels(as.factor(gapminder$year)) # get a list of all years included in data set
+all_ys <- levels(as.factor(gapminder$year)) # get a list of all years included in data set
+all_ys
 ```
 
     ##  [1] "1952" "1957" "1962" "1967" "1972" "1977" "1982" "1987" "1992" "1997"
     ## [11] "2002" "2007"
 
-1.  What values are typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.
+``` r
+r_gdp <- range(gapminder$gdpPercap) # get the lowest and highest value of gdpPercap
+r_gdp
+```
 
-lifeExp:
+    ## [1]    241.1659 113523.1329
+
+**2. What values are typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.**
+
+Here are some details for the lifeExp variable. I am going to get some statistics of the variable and will show it's distribution with a density plot.
 
 ``` r
 # get statistics of lifeExp variable, make them into a data frame for presenting in nice table with kable()
@@ -206,21 +235,84 @@ summary(gapminder$lifeExp) %>% as.matrix() %>% as.data.frame() %>% rownames_to_c
 # make density plot for lifeExp variable
 gapminder %>% 
   ggplot(aes(lifeExp)) + 
-  geom_density()
+  geom_density() +
+  labs(x="Life Expectancy", y="Density")
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+Next I am going to show how many countries there are per continent in first year of data collection, i.e. 1952. To make sure that the same number of countries is included in 1952 as in the whole data set, I will check if the number compares to the total number that I
 
 ``` r
-# make plot that shows lifeExp over the years per country with clour coding per continent
-gapminder %>% 
-  ggplot(aes(year,lifeExp)) +
-  geom_line(aes(group=country, colour=continent))
+gm_fy <- gapminder %>% filter(year == 1952) # filter gapminder for year 1952
+
+n_ct_fy <- nlevels(gm_fy$country) # calculate number of countries recorded in 1952
+
+n_ct_fy == n_ct # check if number of countries in first year is the same as number of countries as calculate earlier with all levels of the country variable
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-8-2.png)
+    ## [1] TRUE
 
-Feel free to use summary stats, tables, figures. We’re NOT expecting high production value (yet).
+``` r
+# make bar graph of number of countries per continent with filtered data from above
+gm_fy %>% 
+  ggplot(aes(continent)) +
+  geom_bar()
+```
+
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+Next, I am going to do the same for gdpPercap.
+
+``` r
+# get statistics of gdpPercap variable, make them into a data frame for presenting in nice table with kable()
+summary(gapminder$gdpPercap) %>% as.matrix() %>% as.data.frame() %>% rownames_to_column() %>% rename(Stat=rowname, Value=V1) %>% kable()
+```
+
+| Stat    |        Value|
+|:--------|------------:|
+| Min.    |     241.1659|
+| 1st Qu. |    1202.0603|
+| Median  |    3531.8470|
+| Mean    |    7215.3271|
+| 3rd Qu. |    9325.4623|
+| Max.    |  113523.1329|
+
+``` r
+# make density plot for lifeExp variable, I will use a log scale for this variable
+gapminder %>% 
+  ggplot(aes(gdpPercap)) + 
+  scale_x_log10() +
+  geom_density() +
+  labs(x="GDP per capita", y="Density")
+```
+
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-12-1.png)
+
+To get a better idea of how life expectancy differs between different countries per continent and how it changed throughout the years, here is a plot that gives an overview of the life expectancy over the years per country, coloured by continent:
+
+``` r
+# make plot that shows lifeExp over the years per country with colour coding per continent
+gapminder %>% 
+  ggplot(aes(year,lifeExp)) +
+  geom_line(aes(group=country, colour=continent)) +
+  labs(x="Year", y="Life Expectancy")
+```
+
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-13-1.png)
+
+Here is the same for the GDP, on a log scale:
+
+``` r
+# make plot that shows lifeExp over the years per country with colour coding per continent
+gapminder %>% 
+  ggplot(aes(year,gdpPercap)) +
+  scale_y_log10() +
+  geom_line(aes(group=country, colour=continent)) +
+  labs(x="Year", y="GDP per capita")
+```
+
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
 ### Explore various plot types
 
@@ -231,24 +323,26 @@ Make a few plots, probably of the same variable you chose to characterize numeri
 ``` r
 # make a scatterplot of lifeExp vs. gdpPercap
 gapminder %>% 
-  ggplot(aes(gdpPercap, lifeExp)) +
+  ggplot(aes(gdpPercap, lifeExp)) + 
+  scale_x_log10() +
   geom_jitter() 
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
 1.  A plot of one quantitative variable. Maybe a histogram or densityplot or frequency polygon.
 
 ``` r
-# frequency pplygon for population
+# frequency pplygon for population, put on log scale!
 gapminder %>% 
   ggplot(aes(pop)) +
+  scale_x_log10() +
   geom_freqpoly()
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 1.  A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.
 
@@ -260,7 +354,7 @@ gapminder %>%
   labs(x="Continent", y="Life Expectancy")
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-11-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
 You don’t have to use all the data in every plot! It’s fine to filter down to one country or small handful of countries.
 
@@ -271,7 +365,7 @@ gapminder %>% filter(continent == "Asia") %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 ### Use filter(), select() and %&gt;%
 
@@ -287,7 +381,7 @@ gapminder %>%
   geom_jitter()
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
 ### But I want to do more!
 
