@@ -1,7 +1,7 @@
 hw02-gapminder exploration
 ================
 Frederike Basedow
-22 September 2018
+25 September 2018
 
 ### Load the data and packages
 
@@ -44,13 +44,7 @@ str(gapminder)
     ##  $ pop      : int  8425333 9240934 10267083 11537966 13079460 14880372 12881816 13867957 16317921 22227415 ...
     ##  $ gdpPercap: num  779 821 853 836 740 ...
 
-``` r
-typeof(gapminder)
-```
-
-    ## [1] "list"
-
-Gapminder is a list that contains 3 different classes: table-data frame, table and data frame.
+Gapminder is a tibble, which is a special type of data frame.
 
 **2. What is its class?**
 
@@ -60,10 +54,12 @@ class(gapminder)
 
     ## [1] "tbl_df"     "tbl"        "data.frame"
 
+The classes included in gapminder are `tbl_df`, `tbl`, and `data.frame`.
+
 **3. How many variables/columns?**
 
 ``` r
-n_var <- ncol(gapminder)
+n_var <- ncol(gapminder) #store number of columns in new variable n_var
 n_var
 ```
 
@@ -74,7 +70,7 @@ Gapminder has 6 variables.
 **4. How many rows/observations?**
 
 ``` r
-n_obs <- nrow(gapminder)
+n_obs <- nrow(gapminder) # store number of rows in new variable n_obs
 n_obs
 ```
 
@@ -92,13 +88,15 @@ dim(gapminder)
 
     ## [1] 1704    6
 
-Furthermore, the output of the `str()` function also includes the dimensions of the object in its first line. `str()` is useful if you just want to get an overview of what the dimension are but not do anything with them. `dim()`, `nrow()` and `ncol()` are useful if you want to use the output numbers for future calculations. For example, you might want to use the total number of observations to calculate the mean. Here is an example for calculating the mean gdpPercap, making use of `n_obs` as specified above:
+Furthermore, the output of the `str()` function or just typing in the object's name also includes the dimensions of the object in its first line. `str()` is useful if you just want to get an overview of what the dimension are but not do anything with them. `dim()`, `nrow()` and `ncol()` are useful if you want to use the output numbers for future calculations. For example, you might want to use the total number of observations to calculate the mean. Here is an example for calculating the mean gdpPercap, making use of `n_obs` as specified above:
 
 ``` r
 sum(gapminder$gdpPercap)/n_obs
 ```
 
     ## [1] 7215.327
+
+`dim()` is a faster function than `ncol()` and `nrow()`, because the latter two functions actually use the `dim()` function. So it may be better to use dim() in loops that involve a lot of computing.
 
 **6. What data type is each variable?**
 
@@ -115,11 +113,9 @@ The first row shows the variable and the second row the respective type of each 
 
 *Pick at least one categorical variable and at least one quantitative variable to explore.*
 
-I will explore `country` and `year` as categorical variables and `lifeExp` and \`gdpPercap as quanititative variables.
+I will explore `country` and `year` as categorical variables and `lifeExp` and `gdpPercap` as quantitative variables.
 
 **1. What are possible values (or range, whichever is appropriate) of each variable?**
-
-I will safe the output of each of these calculations in case I will need them later.
 
 ``` r
 # get the lowest and highest value of lifeExp
@@ -226,27 +222,29 @@ all_ys
 
 ``` r
 # get the lowest and highest value of gdpPercap
-r_gdp <- range(gapminder$gdpPercap) 
+r_gdp <- round(range(gapminder$gdpPercap),2) 
 r_gdp
 ```
 
-    ## [1]    241.1659 113523.1329
+    ## [1]    241.17 113523.13
+
+The `lifeExp` variable ranges from 23.599 to 82.603, there are 142 countries included in the data set and the `gdpPercap` variable ranges from 241.17 to 1.135231310^{5}.
 
 **2. What values are typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.**
 
-For this task, I will focus on one quantitative and one categorical variable only. First, I will provide some statistics of the lifeExp variable and it's distribution, then I will show how many countries were recorded per continent.
+For this task, I will focus on one quantitative (`lifeExp`) and one categorical variable (`continent`) only. First, I will provide some statistics of the life expectancy and it's distribution, then I will show how many countries were recorded per continent.
 
 Let's start with the life expectancy:
 
 ``` r
 # get statistics of lifeExp variable, change them into a data frame for presenting in nice table with kable()
 summary(gapminder$lifeExp) %>% 
-  round(2) %>% 
-  as.matrix() %>% 
-  as.data.frame() %>% 
-  rownames_to_column() %>% 
-  rename(Stat=rowname, Value=V1) %>% 
-  kable()
+  round(2) %>% # round the calculate values to two decimals
+  as.matrix() %>% # change to matrix
+  as.data.frame() %>% # change into data frame
+  rownames_to_column() %>% # make the rownames (including stats description) into a column
+  rename(Stat=rowname, Value=V1) %>% # change column names
+  kable() #print in nice table
 ```
 
 | Stat    |  Value|
@@ -261,9 +259,9 @@ summary(gapminder$lifeExp) %>%
 ``` r
 # make density plot for lifeExp variable
 gapminder %>% 
-  ggplot(aes(lifeExp)) + 
-  geom_density() +
-  labs(x="Life Expectancy", y="Density")
+  ggplot(aes(lifeExp)) + # lifeExp on x axis
+  geom_density() + # density plot
+  labs(x="Life Expectancy", y="Density") # change axis labels
 ```
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-10-1.png)
@@ -292,8 +290,8 @@ The number of countries recorded in the year 1952 is the same as the number of d
 
 ``` r
 # make bar graph of number of countries per continent with filtered data for year 1952
-gm_fy %>% 
-  ggplot(aes(continent)) +
+gm_fy %>% # gapminder data for year 1952 only
+  ggplot(aes(continent)) + 
   geom_bar() +
   labs(x="Continent", y="Number of Countries")
 ```
@@ -303,11 +301,11 @@ gm_fy %>%
 To get a better idea of how life expectancy differs between different countries per continent and how it changed throughout the years, here is a plot that gives an overview of the life expectancy over the years per country, coloured by continent:
 
 ``` r
-# make plot that shows lifeExp over the years per country with colour coding per continent
+# make plot that shows lifeExp over the years per country with colour coding by continent
 gapminder %>% 
   ggplot(aes(year,lifeExp)) +
-  geom_line(aes(group=country, colour=continent)) +
-  labs(x="Year", y="Life Expectancy") #change axis labels
+  geom_line(aes(group=country, colour=continent)) + 
+  labs(x="Year", y="Life Expectancy") 
 ```
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-13-1.png)
@@ -321,11 +319,12 @@ gapminder %>%
 I will use the two quantitative variables `lifeExp` and `gdpPercap`.
 
 ``` r
-# make a scatterplot of gdpPercap vs. lifeExp
+# make a scatterplot of gdpPercap vs. lifeExp for each continent
 gapminder %>% 
   ggplot(aes(gdpPercap, lifeExp)) + 
-  scale_x_log10() +
-  geom_jitter(alpha=0.25) +
+  scale_x_log10() + #using log scale for gdpPercap
+  geom_jitter(alpha=0.25) + # add some alpha transparency to jitter
+  facet_wrap( ~continent) + # facetting by continent
   geom_smooth(method=lm) + # fit a linear regression line
   labs(x="GDP per capita", y=" Life Expectancy")
 ```
@@ -334,7 +333,7 @@ gapminder %>%
 
 **2. A plot of one quantitative variable. Maybe a histogram or densityplot or frequency polygon.**
 
-I will use the variable `pop` for this task
+I will use the variable `pop` for this task.
 
 ``` r
 # histogram for population, using a log scale.
@@ -349,11 +348,11 @@ gapminder %>%
 
 **3. A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.**
 
-I will plot the GDP per capita for each continent in the year 1952 in a violin plot.
+I will plot the GDP per capita for each continent in the year 1952 with a violin plot, including jitter. I will also include the life expectancy data on a colour scale that will be visible in the jitter plot.
 
 ``` r
 gm_fy %>%  # use data previously filtered for year 1952
-  ggplot(aes(continent, gdpPercap)) +
+  ggplot(aes(continent, gdpPercap, colour=lifeExp)) +
   scale_y_log10() +
   geom_violin() +
   geom_jitter(alpha=0.5) +
@@ -361,8 +360,6 @@ gm_fy %>%  # use data previously filtered for year 1952
 ```
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-16-1.png)
-
-*You don’t have to use all the data in every plot! It’s fine to filter down to one country or small handful of countries.*
 
 To give another example of using filtered data, here is a boxplot of the life expectancy in each country in Asia.
 
@@ -381,7 +378,7 @@ gapminder %>%
 
 **1. Use filter() to create data subsets that you want to plot. Practice piping together filter() and select(). Possibly even piping into ggplot().**
 
-I don't understand the use of `select()` when you're plotting data, aren't you selecting data in your plot settings anyways? But here's a plot that shows life expectancy per continent in the year 2007.
+Here is a violin plot, including jitter, of the life expectancy in each continent in the year 2007.
 
 ``` r
 gapminder %>% 
@@ -389,7 +386,7 @@ gapminder %>%
   select(continent, country, lifeExp) %>% 
   ggplot(aes(continent, lifeExp)) +
   geom_violin() +
-  geom_jitter() +
+  geom_jitter(alpha=0.5) +
   labs(x="Continent", y="Life Expectancy")
 ```
 
@@ -397,7 +394,7 @@ gapminder %>%
 
 ### But I want to do more!
 
-Evaluate this code and describe the result. Presumably the analyst’s intent was to get the data for Rwanda and Afghanistan. Did they succeed? Why or why not? If not, what is the correct way to do this?
+*Evaluate this code and describe the result. Presumably the analyst’s intent was to get the data for Rwanda and Afghanistan. Did they succeed? Why or why not? If not, what is the correct way to do this?*
 
 ``` r
 filter(gapminder, country == c("Rwanda", "Afghanistan"))
@@ -429,7 +426,7 @@ filter(gapminder, country == c("Rwanda", "Afghanistan")) %>%
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
-You can see that only one data point exists per year, of one country each.
+You can see that only one data point exists per year, of one country each. If I understand it correctly, this is because by using `==` to campare strings in character vectors, the data will be sorted in a specific way (that I don't fully understand).
 
 The correct way is:
 
@@ -475,7 +472,7 @@ gapminder %>%
     ## 10 Afghanistan Asia       1997    41.8 22227415      635.
     ## # ... with 14 more rows
 
-And here is a plot that shows that two data points exist per year, one per country.
+And here is a plot that shows that with the correct method two data points exist per year, one per country.
 
 ``` r
 gapminder %>% 
