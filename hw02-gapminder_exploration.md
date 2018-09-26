@@ -215,7 +215,9 @@ r_gdp
 
 **2. What values are typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.**
 
-Here are some details for the lifeExp variable. I am going to get some statistics of the variable and will show it's distribution with a density plot.
+For this task, I will focus on one quantitative and one categorical variable only. First I will provide some statistics of the lifeExp variable and it's distribution, then I will show you how many countries were recorded per continent.
+
+Let's start with the life expectancy:
 
 ``` r
 # get statistics of lifeExp variable, make them into a data frame for presenting in nice table with kable()
@@ -241,7 +243,7 @@ gapminder %>%
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-Next I am going to show how many countries there are per continent in first year of data collection, i.e. 1952. To make sure that the same number of countries is included in 1952 as in the whole data set, I will check if the number compares to the total number that I
+Next I am going to show how many countries there are per continent. Assuming that the number of countries recorded is the same for every year, we can use the data for one specific year to answer this question. However, to make sure that the same number of countries is included in 1952 as in the whole data set, I will check if the number compares to the total number that I determined above.
 
 ``` r
 gm_fy <- gapminder %>% filter(year == 1952) # filter gapminder for year 1952
@@ -254,40 +256,13 @@ n_ct_fy == n_ct # check if number of countries in first year is the same as numb
     ## [1] TRUE
 
 ``` r
-# make bar graph of number of countries per continent with filtered data from above
+# make bar graph of number of countries per continent with filtered data for year 1952
 gm_fy %>% 
   ggplot(aes(continent)) +
   geom_bar()
 ```
 
 ![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-11-1.png)
-
-Next, I am going to do the same for gdpPercap.
-
-``` r
-# get statistics of gdpPercap variable, make them into a data frame for presenting in nice table with kable()
-summary(gapminder$gdpPercap) %>% as.matrix() %>% as.data.frame() %>% rownames_to_column() %>% rename(Stat=rowname, Value=V1) %>% kable()
-```
-
-| Stat    |        Value|
-|:--------|------------:|
-| Min.    |     241.1659|
-| 1st Qu. |    1202.0603|
-| Median  |    3531.8470|
-| Mean    |    7215.3271|
-| 3rd Qu. |    9325.4623|
-| Max.    |  113523.1329|
-
-``` r
-# make density plot for lifeExp variable, I will use a log scale for this variable
-gapminder %>% 
-  ggplot(aes(gdpPercap)) + 
-  scale_x_log10() +
-  geom_density() +
-  labs(x="GDP per capita", y="Density")
-```
-
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 To get a better idea of how life expectancy differs between different countries per continent and how it changed throughout the years, here is a plot that gives an overview of the life expectancy over the years per country, coloured by continent:
 
@@ -299,26 +274,15 @@ gapminder %>%
   labs(x="Year", y="Life Expectancy")
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-13-1.png)
-
-Here is the same for the GDP, on a log scale:
-
-``` r
-# make plot that shows lifeExp over the years per country with colour coding per continent
-gapminder %>% 
-  ggplot(aes(year,gdpPercap)) +
-  scale_y_log10() +
-  geom_line(aes(group=country, colour=continent)) +
-  labs(x="Year", y="GDP per capita")
-```
-
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 ### Explore various plot types
 
-Make a few plots, probably of the same variable you chose to characterize numerically. You can use the plot types we went over in class (cm006) to get an idea of what you’d like to make. Try to explore more than one plot type. Just as an example of what I mean:
+*Make a few plots, probably of the same variable you chose to characterize numerically. You can use the plot types we went over in class (cm006) to get an idea of what you’d like to make. Try to explore more than one plot type.*
 
-1.  A scatterplot of two quantitative variables.
+**1. A scatterplot of two quantitative variables.**
+
+I will use the two quantitative variables `lifeExp` and `gdpPercap`.
 
 ``` r
 # make a scatterplot of lifeExp vs. gdpPercap
@@ -328,60 +292,69 @@ gapminder %>%
   geom_jitter() 
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-15-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
-1.  A plot of one quantitative variable. Maybe a histogram or densityplot or frequency polygon.
+**2. A plot of one quantitative variable. Maybe a histogram or densityplot or frequency polygon.**
+
+I will use the variable `pop` for this task
 
 ``` r
-# frequency pplygon for population, put on log scale!
+# frequency polygon for population, using a log scale.
 gapminder %>% 
   ggplot(aes(pop)) +
   scale_x_log10() +
-  geom_freqpoly()
+  geom_histogram(bins=50) +
+  labs(x="Population", y="Count")
 ```
 
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-16-1.png)
+**3. A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.**
 
-1.  A plot of one quantitative variable and one categorical. Maybe boxplots for several continents or countries.
+I will plot the GDP per capita for each continent in the year 1952.
 
 ``` r
-gapminder %>% 
-  ggplot(aes(continent, lifeExp)) +
+gm_fy %>%  # use data previously filtered for year 1952
+  ggplot(aes(continent, gdpPercap)) +
+  scale_y_log10() +
   geom_violin() +
-  geom_jitter(alpha=0.25) +
-  labs(x="Continent", y="Life Expectancy")
+  geom_jitter(alpha=0.5) +
+  labs(x="Continent", y="GDP per capita")
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-17-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
-You don’t have to use all the data in every plot! It’s fine to filter down to one country or small handful of countries.
+*You don’t have to use all the data in every plot! It’s fine to filter down to one country or small handful of countries.*
+
+To give another example of using filtered data, here is a boxplot of the Life Expectancy in each country in Asia:
 
 ``` r
 gapminder %>% filter(continent == "Asia") %>% 
   ggplot(aes(country, lifeExp)) +
   geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x="Country in Asia", y="Life Expectancy")
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-18-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 ### Use filter(), select() and %&gt;%
 
-1.  Use filter() to create data subsets that you want to plot. Practice piping together filter() and select(). Possibly even piping into ggplot().
+**1. Use filter() to create data subsets that you want to plot. Practice piping together filter() and select(). Possibly even piping into ggplot().**
+
+I don't understand the use of `select()` when you're plotting data since you're selecting data in your plot settings anyways. But here's a plot that shows life expectancy per continent in the year 2007.
 
 ``` r
-# i don't understand the use of `select()` when you're plotting data since you're selecting data in your plot settings anyways
 gapminder %>% 
   select(continent, country, lifeExp, year) %>% 
-  filter(year=="1952") %>% 
+  filter(year=="2007") %>% 
   ggplot(aes(continent, lifeExp)) +
   geom_violin() +
-  geom_jitter()
+  geom_jitter() +
+  labs(x="Continent", y="Life Expectancy")
 ```
 
-![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-19-1.png)
+![](hw02-gapminder_exploration_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
 ### But I want to do more!
 
